@@ -2,7 +2,7 @@
   <div class="home">
     <el-container>
       <el-header>
-        <h1>Vue + Element Plus 项目</h1>
+        <h1>Vue + Element Plus 项目111</h1>
       </el-header>
       <el-main>
         <el-card>
@@ -20,25 +20,25 @@
 </template>
 
 <script>
-import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref } from "vue";
+import { ElMessage } from "element-plus";
 
 export default {
-  name: 'HomeView',
+  name: "HomeView",
   setup() {
-    const message = ref('')
+    const message = ref("");
 
     const handleClick = () => {
-      message.value = 'Element Plus 工作正常！'
-      ElMessage.success('点击成功！')
-    }
+      message.value = "Element Plus 工作正常！";
+      ElMessage.success("点击成功！");
+    };
 
     return {
       message,
-      handleClick
-    }
-  }
-}
+      handleClick,
+    };
+  },
+};
 </script>
 
 <style scoped>

@@ -1,0 +1,79 @@
+/* src/assets/reset.css */
+
+/* 1. 改变盒模型计算方式，让 padding 和 border 不会撑大盒子 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 2. 移除常见的默认外边距和内边距 */
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+  padding: 0;
+}
+
+/* 3. 移除列表前的圆点/序号 */
+ul,
+ol,
+li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* 4. 链接去除下划线，颜色继承父级 */
+a {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* 5. 图片自适应并去除底部间隙 */
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* 6. 表单元素重置：继承字体，去除默认边框和轮廓 */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  outline: none;
+  border: none;
+  background: none;
+}
+
+/* 7. 设置基础字体和背景色（配合你的淘宝风格） */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.5;
+  color: #333;
+  /* 通用字体颜色 */
+  background-color: #f5f5f5;
+  /* 浅灰背景 */
+  -webkit-font-smoothing: antialiased;
+  /*字体抗锯齿*/
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 8. 辅助类：清除浮动 (如果你用到浮动布局的话) */
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
