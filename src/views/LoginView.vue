@@ -38,9 +38,8 @@
           >
 
           <div class="links">
-            <el-link type="info" @click="$router.push('/')"
-              >游客访问商城 >></el-link
-            >
+            <el-link type="primary" @click="$router.push('/register')">立即注册</el-link>
+            <el-link type="info" @click="$router.push('/')">游客访问商城 >></el-link>
           </div>
         </el-form>
 
@@ -139,7 +138,8 @@ const handleLogin = () => {
 }
 .links {
   margin-top: 15px;
-  text-align: right;
+  display: flex;
+  justify-content: space-between;
 }
 .tips {
   margin-top: 30px;
