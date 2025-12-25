@@ -111,19 +111,11 @@ const rules = {
 const handleRegister = async () => {
   if (!formRef.value) return;
   
-  await formRef.value.validate((valid) => {
+  await formRef.value.validate(async (valid) => {
     if (!valid) return;
 
-    // 检查用户名是否已存在
-    const exists = store.users.find(u => u.username === form.username);
-    if (exists) {
-      ElMessage.error("用户名已存在");
-      return;
-    }
-
     // 注册新用户
-    const newUser = {
-      id: Date.now(),
+    const userData = {
       username: form.username,
       password: form.password,
       name: form.name,
@@ -131,12 +123,14 @@ const handleRegister = async () => {
     };
 
     if (form.role === "shop") {
-      newUser.phone = form.phone;
+      userData.phone = form.phone;
     }
 
-    store.users.push(newUser);
-    ElMessage.success("注册成功，请登录");
-    router.push("/login");
+    const success = await store.register(userData);
+    if (success) {
+      ElMessage.success("注册成功，请登录");
+      router.push("/login");
+    }
   });
 };
 </script>

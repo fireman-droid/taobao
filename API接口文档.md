@@ -1,13 +1,13 @@
-# 淘宝商城 API 接口文档
+## 淘宝商城 API 接口文档
 
 ## 一、用户模块
 
 ### 1.1 用户登录
-- **POST** `/api/user/login`
+- **POST** `/api/users/login`
 - **请求参数：**
 ```json
 {
-  "username": "string",  // 用户名
+  "username": "string",  //用户名
   "password": "string"   // 密码
 }
 ```
@@ -25,7 +25,7 @@
 ```
 
 ### 1.2 获取用户列表（管理员）
-- **GET** `/api/user/list`
+- **GET** `/api/users/list`
 - **请求参数：**
 ```json
 {
@@ -48,10 +48,10 @@
 ```
 
 ### 1.3 删除/注销用户（管理员）
-- **DELETE** `/api/user/{id}`
+- **DELETE** `/api/users/{id}`
 
 ### 1.4 编辑用户信息（管理员）
-- **PUT** `/api/user/update`
+- **PUT** `/api/users/update`
 - **请求参数：**
 ```json
 {
@@ -72,7 +72,7 @@
 ```
 
 ### 1.6 新增管理员（管理员）
-- **POST** `/api/user/addAdmin`
+- **POST** `/api/users/addAdmin`
 - **请求参数：**
 ```json
 {
@@ -83,7 +83,7 @@
 ```
 
 ### 1.7 获取统计数据（管理员）
-- **GET** `/api/stats/overview`
+- **GET** `/api/users/overview`
 - **返回字段：**
 ```json
 {
@@ -100,7 +100,7 @@
 ## 二、商品模块
 
 ### 2.1 获取商品列表
-- **GET** `/api/product/list`
+- **GET** `/api/products/list`
 - **请求参数：**
 ```json
 {
@@ -126,22 +126,23 @@
 ```
 
 ### 2.2 发布商品（商家）
-- **POST** `/api/product/add`
+- **POST** `/api/products/add`
 - **请求参数：**
 ```json
 {
   "name": "string",     // 商品名称
   "price": "number",    // 价格
   "shopId": "number",   // 店铺ID
+  "quantity":"number",	//商品数量
   "image": "string"     // 商品图片URL（可选）
 }
 ```
 
 ### 2.3 下架/删除商品（商家）
-- **DELETE** `/api/product/{id}`
+- **DELETE** `/api/products/{id}`
 
 ### 2.4 编辑商品（商家）
-- **PUT** `/api/product/update`
+- **PUT** `/api/products/update`
 - **请求参数：**
 ```json
 {
@@ -195,7 +196,7 @@
 }
 ```
 
-### 3.3 更新购物车数量
+### 3.3 更新购物车数量  ??
 - **PUT** `/api/cart/update`
 - **请求参数：**
 ```json
@@ -212,8 +213,8 @@
 
 ## 四、订单模块
 
-### 4.1 获取订单列表
-- **GET** `/api/order/list`
+### 4.1 获取订单列表  （顾客/商家）
+- **GET** `/api/orders/list`
 - **请求参数：**
 ```json
 {
@@ -248,7 +249,7 @@
 ```
 
 ### 4.2 创建订单（结算）
-- **POST** `/api/order/create`
+- **POST** `/api/orders/create`
 - **请求参数：**
 ```json
 {
@@ -268,11 +269,11 @@
 ```
 
 ### 4.3 支付订单
-- **PUT** `/api/order/pay/{id}`
+- **PUT** `/api/orders/pay/{id}`
 - **说明：** 将订单状态从 1(待支付) 改为 2(待发货)
 
 ### 4.4 发货（商家）
-- **PUT** `/api/order/ship/{id}`
+- **PUT** `/api/orders/ship/{id}`
 - **说明：** 将订单状态从 2(待发货) 改为 3(已发货)
 
 ---
@@ -280,7 +281,7 @@
 ## 五、系统设置模块（管理员）
 
 ### 5.1 获取系统配置
-- **GET** `/api/system/config`
+- **GET** `/api/system/getconfig`
 - **返回字段：**
 ```json
 {
@@ -293,7 +294,7 @@
 ```
 
 ### 5.2 更新系统配置
-- **PUT** `/api/system/config`
+- **PUT** `/api/system/updateconfig`
 - **请求参数：**
 ```json
 {
@@ -358,26 +359,24 @@
 
 | 模块 | 接口 | 方法 | 说明 | 角色 |
 |------|------|------|------|------|
-| 用户 | /api/user/login | POST | 登录 | 全部 |
-| 用户 | /api/user/list | GET | 用户列表 | 管理员 |
-| 用户 | /api/user/{id} | DELETE | 注销用户 | 管理员 |
-| 用户 | /api/user/update | PUT | 编辑用户 | 管理员 |
-| 用户 | /api/user/resetPassword/{id} | PUT | 重置密码 | 管理员 |
-| 用户 | /api/user/addAdmin | POST | 新增管理员 | 管理员 |
+| 用户 | /api/users/login | POST | 登录 | 全部 |
+| 用户 | /api/users/list | GET | 用户列表 | 管理员 |
+| 用户 | /api/users/{id} | DELETE | 注销用户 | 管理员 |
+| 用户 | /api/users/update | PUT | 编辑用户 | 管理员 |
+| 用户 | /api/users/resetPassword/{id} | PUT | 重置密码 | 管理员 |
+| 用户 | /api/users/addAdmin | POST | 新增管理员 | 管理员 |
 | 统计 | /api/stats/overview | GET | 统计概览 | 管理员 |
-| 商品 | /api/product/list | GET | 商品列表 | 全部 |
-| 商品 | /api/product/add | POST | 发布商品 | 商家 |
-| 商品 | /api/product/update | PUT | 编辑商品 | 商家 |
-| 商品 | /api/product/{id} | DELETE | 下架商品 | 商家 |
+| 商品 | /api/products/list | GET | 商品列表 | 全部 |
+| 商品 | /api/products/add | POST | 发布商品 | 商家 |
+| 商品 | /api/products/update | PUT | 编辑商品 | 商家 |
+| 商品 | /api/products/{id} | DELETE | 下架商品 | 商家 |
 | 购物车 | /api/cart/list | GET | 购物车列表 | 顾客 |
 | 购物车 | /api/cart/add | POST | 加入购物车 | 顾客 |
 | 购物车 | /api/cart/update | PUT | 更新数量 | 顾客 |
 | 购物车 | /api/cart/{id} | DELETE | 删除购物车商品 | 顾客 |
-| 订单 | /api/order/list | GET | 订单列表 | 顾客/商家 |
-| 订单 | /api/order/create | POST | 创建订单 | 顾客 |
-| 订单 | /api/order/pay/{id} | PUT | 支付订单 | 顾客 |
-| 订单 | /api/order/ship/{id} | PUT | 发货 | 商家 |
-| 系统 | /api/system/config | GET | 获取系统配置 | 管理员 |
-| 系统 | /api/system/config | PUT | 更新系统配置 | 管理员 |
-| 审核 | /api/shop/audit/list | GET | 待审核店铺列表 | 管理员 |
-| 审核 | /api/shop/audit/{id} | PUT | 审核店铺申请 | 管理员 |
+| 订单 | /api/orders/list | GET | 订单列表 | 顾客/商家 |
+| 订单 | /api/orders/create | POST | 创建订单 | 顾客 |
+| 订单 | /api/orders/pay/{id} | PUT | 支付订单 | 顾客 |
+| 订单 | /api/orders/ship/{id} | PUT | 发货 | 商家 |
+
+

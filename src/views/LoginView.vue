@@ -65,15 +65,34 @@ const router = useRouter();
 const activeRole = ref("user"); // 仅用于视觉切换，实际逻辑看账号
 const form = reactive({ username: "", password: "" });
 
-const handleLogin = () => {
-  if (store.login(form.username, form.password)) {
+const handleLogin = async () => {
+  if (!form.username || !form.password) {
+    ElMessage.warning("请输入用户名和密码");
+    return;
+  }
+  
+  const success = await store.login(form.username, form.password);
+  console.log('登录结果:', success);
+  console.log('当前用户信息:', store.currentUser);
+  
+  if (success) {
     ElMessage.success(`欢迎回来，${store.currentUser.name}`);
     const role = store.currentUser.role;
-    if (role === "admin") router.push("/admin");
-    else if (role === "shop") router.push("/shop");
-    else router.push("/");
+    console.log('登录成功，用户角色:', role);
+    console.log('准备跳转到:', role === "admin" ? "/admin" : role === "shop" ? "/shop" : "/customer");
+    
+    if (role === "admin") {
+      console.log('跳转到管理员页面');
+      router.push("/admin");
+    } else if (role === "shop") {
+      console.log('跳转到商家页面');
+      router.push("/shop");
+    } else {
+      console.log('跳转到顾客页面');
+      router.push("/customer");
+    }
   } else {
-    ElMessage.error("账号或密码错误");
+    ElMessage.error("登录失败，请检查用户名和密码");
   }
 };
 </script>
