@@ -67,16 +67,17 @@
         <!-- 用户评价区域 -->
         <div class="reviews-section">
           <h3 class="section-title">用户评价</h3>
-          <div class="review-item" v-for="(review, index) in mockReviews" :key="index">
+          <el-empty v-if="productReviews.length === 0" description="暂无评价" />
+          <div class="review-item" v-for="review in productReviews" :key="review.id">
             <div class="review-header">
-              <el-avatar :size="40">{{ review.user.substring(0, 1) }}</el-avatar>
+              <el-avatar :size="40">{{ review.userName ? review.userName.substring(0, 1) : 'U' }}</el-avatar>
               <div class="review-user-info">
-                <div class="review-user">{{ review.user }}</div>
+                <div class="review-user">{{ review.userName || '匿名用户' }}</div>
                 <el-rate v-model="review.rating" disabled size="small" />
               </div>
-              <div class="review-time">{{ review.time }}</div>
+              <div class="review-time">{{ review.createTime }}</div>
             </div>
-            <div class="review-content">{{ review.content }}</div>
+            <div class="review-content">{{ review.comment }}</div>
           </div>
         </div>
       </div>
@@ -98,27 +99,8 @@ const router = useRouter();
 const detailVisible = ref(false);
 const currentProduct = ref(null);
 
-// 模拟评价数据
-const mockReviews = ref([
-  {
-    user: "张三",
-    rating: 5,
-    time: "2025-12-20",
-    content: "商品质量非常好，物流也很快，非常满意！"
-  },
-  {
-    user: "李四",
-    rating: 4,
-    time: "2025-12-18",
-    content: "整体不错，性价比很高，值得购买。"
-  },
-  {
-    user: "王五",
-    rating: 5,
-    time: "2025-12-15",
-    content: "超出预期，包装精美，商品完好无损，好评！"
-  }
-]);
+// 商品评价列表
+const productReviews = ref([]);
 
 // 从父组件接收搜索关键词
 const props = defineProps({
@@ -139,8 +121,10 @@ onMounted(async () => {
 });
 
 // 显示商品详情
-const showDetail = (product) => {
+const showDetail = async (product) => {
   currentProduct.value = product;
+  // 获取该商品的真实评价
+  productReviews.value = await store.fetchProductComments(product.id);
   detailVisible.value = true;
 };
 

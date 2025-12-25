@@ -353,6 +353,62 @@ export const useMainStore = defineStore("main", () => {
     }
   }
 
+  // 确认收货
+  async function confirmReceipt(orderId) {
+    try {
+      const res = await api.confirmReceipt(orderId);
+      if (res.code === 200) {
+        await fetchOrderList();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('确认收货失败:', error);
+      return false;
+    }
+  }
+
+  // ==================== 评价相关 ====================
+  
+  // 添加评价
+  async function addComment(commentData) {
+    try {
+      const res = await api.addComment(commentData);
+      return res.code === 200;
+    } catch (error) {
+      console.error('添加评价失败:', error);
+      return false;
+    }
+  }
+
+  // 获取商品评价列表
+  async function fetchProductComments(productId) {
+    try {
+      const res = await api.getProductComments(productId);
+      if (res.code === 200) {
+        return res.data;
+      }
+      return [];
+    } catch (error) {
+      console.error('获取商品评价失败:', error);
+      return [];
+    }
+  }
+
+  // 获取订单评价状态
+  async function fetchOrderCommentStatus(orderId) {
+    try {
+      const res = await api.getOrderCommentStatus(orderId);
+      if (res.code === 200) {
+        return res.data;
+      }
+      return [];
+    } catch (error) {
+      console.error('获取订单评价状态失败:', error);
+      return [];
+    }
+  }
+
   return {
     currentUser,
     users,
@@ -380,6 +436,10 @@ export const useMainStore = defineStore("main", () => {
     fetchOrderList,
     createOrder,
     payOrder,
-    shipOrder
+    shipOrder,
+    confirmReceipt,
+    addComment,
+    fetchProductComments,
+    fetchOrderCommentStatus
   };
 });

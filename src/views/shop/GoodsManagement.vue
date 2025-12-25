@@ -66,20 +66,6 @@
             <img v-if="newProd.image" :src="newProd.image" class="uploaded-image" />
             <el-icon v-else class="uploader-icon"><Plus /></el-icon>
           </el-upload>
-          <div class="upload-tip">
-            点击上传本地图片，或者
-            <el-link type="primary" @click="showUrlInput = !showUrlInput">输入图片URL</el-link>
-          </div>
-          <el-input
-            v-if="showUrlInput"
-            v-model="newProd.image"
-            placeholder="请输入图片URL"
-            style="margin-top: 10px"
-          >
-            <template #append>
-              <el-button @click="showUrlInput = false">确定</el-button>
-            </template>
-          </el-input>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -120,20 +106,6 @@
             <img v-if="editProd.image" :src="editProd.image" class="uploaded-image" />
             <el-icon v-else class="uploader-icon"><Plus /></el-icon>
           </el-upload>
-          <div class="upload-tip">
-            点击上传本地图片，或者
-            <el-link type="primary" @click="showEditUrlInput = !showEditUrlInput">输入图片URL</el-link>
-          </div>
-          <el-input
-            v-if="showEditUrlInput"
-            v-model="editProd.image"
-            placeholder="请输入图片URL"
-            style="margin-top: 10px"
-          >
-            <template #append>
-              <el-button @click="showEditUrlInput = false">确定</el-button>
-            </template>
-          </el-input>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -157,8 +129,8 @@ const dialogVisible = ref(false);
 const editDialogVisible = ref(false);
 const showUrlInput = ref(false);
 const showEditUrlInput = ref(false);
-const newProd = reactive({ name: "", price: "", image: "" });
-const editProd = reactive({ id: null, name: "", price: "", image: "" });
+const newProd = reactive({ name: "", price: "", image: "", imageFile: null });
+const editProd = reactive({ id: null, name: "", price: "", image: "", imageFile: null });
 
 // 从父组件注入当前店铺ID
 const currentShopId = inject('currentShopId');
@@ -212,6 +184,10 @@ const beforeUpload = (file) => {
 };
 
 const handleImageChange = (file) => {
+  // 保存文件对象
+  newProd.imageFile = file.raw;
+  
+  // 预览图片
   const reader = new FileReader();
   reader.onload = (e) => {
     newProd.image = e.target.result;
@@ -236,6 +212,10 @@ const beforeEditUpload = (file) => {
 };
 
 const handleEditImageChange = (file) => {
+  // 保存文件对象
+  editProd.imageFile = file.raw;
+  
+  // 预览图片
   const reader = new FileReader();
   reader.onload = (e) => {
     editProd.image = e.target.result;
@@ -254,12 +234,20 @@ const addProduct = async () => {
     return;
   }
   
-  const success = await store.addProduct({
-    name: newProd.name,
-    price: Number(newProd.price),
-    shopId: currentShopId.value,
-    image: newProd.image || "https://picsum.photos/200/200?random=" + Date.now(),
-  });
+  // 使用 FormData 格式提交
+  const formData = new FormData();
+  formData.append('name', newProd.name);
+  formData.append('price', Number(newProd.price));
+  formData.append('shopId', currentShopId.value);
+  
+  // 如果有上传文件，添加文件；否则添加图片URL
+  if (newProd.imageFile) {
+    formData.append('imageFile', newProd.imageFile);
+  } else if (newProd.image) {
+    formData.append('image', newProd.image);
+  }
+  
+  const success = await store.addProduct(formData);
   
   if (success) {
     dialogVisible.value = false;
@@ -273,6 +261,7 @@ const resetNewProductForm = () => {
   newProd.name = "";
   newProd.price = "";
   newProd.image = "";
+  newProd.imageFile = null;
   showUrlInput.value = false;
 };
 
@@ -292,12 +281,20 @@ const submitEdit = async () => {
     return;
   }
   
-  const success = await store.updateProduct({
-    id: editProd.id,
-    name: editProd.name,
-    price: Number(editProd.price),
-    image: editProd.image
-  });
+  // 使用 FormData 格式提交
+  const formData = new FormData();
+  formData.append('id', editProd.id);
+  formData.append('name', editProd.name);
+  formData.append('price', Number(editProd.price));
+  
+  // 如果有上传新文件，添加文件；否则添加图片URL
+  if (editProd.imageFile) {
+    formData.append('imageFile', editProd.imageFile);
+  } else if (editProd.image) {
+    formData.append('image', editProd.image);
+  }
+  
+  const success = await store.updateProduct(formData);
   
   if (success) {
     editDialogVisible.value = false;

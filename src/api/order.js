@@ -33,3 +33,11 @@ export const shipOrder = (id) => {
     method: 'put'
   })
 }
+
+// 确认收货
+export const confirmReceipt = (id) => {
+  return request({
+    url: `/orders/confirm/${id}`,
+    method: 'put'
+  })
+}

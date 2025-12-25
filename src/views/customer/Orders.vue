@@ -11,10 +11,10 @@
     <div class="order-list" v-else>
       <div class="order-item" v-for="order in myOrders" :key="order.id">
         <div class="order-header">
-          <span class="time">{{ order.createTime }}</span>
+          <span class="time">{{ formatTime(order.createTime) }}</span>
           <span class="order-id">订单号：{{ order.id }}</span>
-          <el-tag :type="getStatusTag(order.status).type" size="small">
-            {{ getStatusTag(order.status).label }}
+          <el-tag :type="getStatusTag(order).type" size="small">
+            {{ getStatusTag(order).label }}
           </el-tag>
         </div>
         <div class="order-body" v-for="p in order.items" :key="p.productId">
@@ -27,7 +27,7 @@
           <div class="actions">
             <el-button v-if="order.status === 1" type="danger" size="small" @click="pay(order)">立即支付</el-button>
             <el-button v-if="order.status === 3" type="success" size="small" @click="confirmReceipt(order)">确认收货</el-button>
-            <el-button v-if="order.status === 4" type="primary" size="small" @click="openReview(order)">评价</el-button>
+            <el-button v-if="order.status === 4" type="primary" size="small" @click="openReview(order)" :disabled="isAllCommented(order)">评价</el-button>
             <span v-if="order.status === 5" class="completed-text">已完成</span>
           </div>
         </div>
@@ -85,7 +85,14 @@ const myOrders = computed(() => {
 });
 
 // 获取订单状态标签
-const getStatusTag = (status) => {
+const getStatusTag = (order) => {
+  const status = order.status;
+  
+  // 如果订单状态是4（待评价），检查是否所有商品都已评价
+  if (status === 4 && isAllCommented(order)) {
+    return { type: 'success', label: '已评价' };
+  }
+  
   const map = {
     1: { type: 'warning', label: '待支付' },
     2: { type: 'info', label: '待发货' },
@@ -94,6 +101,25 @@ const getStatusTag = (status) => {
     5: { type: '', label: '已完成' }
   };
   return map[status] || { type: 'info', label: '未知状态' };
+};
+
+// 检查订单是否所有商品都已评价
+const isAllCommented = (order) => {
+  if (!order.items || order.items.length === 0) return false;
+  return order.items.every(item => item.isCommented === 1);
+};
+
+// 格式化时间
+const formatTime = (timeStr) => {
+  if (!timeStr) return '';
+  const date = new Date(timeStr);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
 const pay = async (order) => {
@@ -109,10 +135,13 @@ const confirmReceipt = async (order) => {
     confirmButtonText: '确认收货',
     cancelButtonText: '取消',
     type: 'success'
-  }).then(() => {
-    // 模拟确认收货，将状态改为4（待评价）
-    order.status = 4;
-    ElMessage.success("收货成功，快去评价吧！");
+  }).then(async () => {
+    const success = await store.confirmReceipt(order.id);
+    if (success) {
+      ElMessage.success("收货成功，快去评价吧！");
+    } else {
+      ElMessage.error("确认收货失败，请稍后重试");
+    }
   }).catch(() => {
     // 用户取消
   });
@@ -120,30 +149,60 @@ const confirmReceipt = async (order) => {
 
 // 打开评价对话框
 const openReview = (order) => {
-  // 为每个商品添加评分和评价字段
-  order.items.forEach(item => {
+  // 过滤出未评价的商品
+  const uncommentedItems = order.items.filter(item => item.isCommented !== 1);
+  
+  if (uncommentedItems.length === 0) {
+    ElMessage.info("所有商品已评价");
+    return;
+  }
+  
+  // 为每个未评价的商品添加评分和评价字段
+  uncommentedItems.forEach(item => {
     if (!item.rating) item.rating = 5;
     if (!item.review) item.review = '';
   });
-  currentOrder.value = order;
+  
+  // 创建一个新的订单对象，只包含未评价的商品
+  currentOrder.value = {
+    ...order,
+    items: uncommentedItems
+  };
   reviewVisible.value = true;
 };
 
 // 提交评价
-const submitReview = () => {
+const submitReview = async () => {
   // 检查是否所有商品都有评价
-  const allReviewed = currentOrder.value.items.every(item => item.review && item.review.trim());
+  const allReviewed = currentOrder.value.items.every(item => item.review && item.review.trim() && item.rating);
   
   if (!allReviewed) {
-    ElMessage.warning("请为所有商品填写评价内容");
+    ElMessage.warning("请为所有商品填写评价内容并打分");
     return;
   }
   
-  // 模拟提交评价，将订单状态改为5（已完成）
-  currentOrder.value.status = 5;
-  ElMessage.success("评价成功，感谢您的反馈！");
-  reviewVisible.value = false;
-  currentOrder.value = null;
+  // 提交每个商品的评价
+  let allSuccess = true;
+  for (const item of currentOrder.value.items) {
+    const success = await store.addComment({
+      orderItemId: item.id,
+      rating: item.rating,
+      comment: item.review
+    });
+    if (!success) {
+      allSuccess = false;
+    }
+  }
+  
+  if (allSuccess) {
+    // 评价成功后，订单状态会自动变为5（已完成）
+    await store.fetchOrderList();
+    ElMessage.success("评价成功，感谢您的反馈！");
+    reviewVisible.value = false;
+    currentOrder.value = null;
+  } else {
+    ElMessage.error("评价提交失败，请稍后重试");
+  }
 };
 
 // 页面加载时获取订单数据

@@ -9,7 +9,6 @@ import Orders from '../views/customer/Orders.vue'
 import ShopDashboard from '../views/ShopDashboard.vue'
 import GoodsManagement from '../views/shop/GoodsManagement.vue'
 import OrderManagement from '../views/shop/OrderManagement.vue'
-import ShopSettings from '../views/shop/ShopSettings.vue'
 import AdminDashboard from '../views/AdminDashboard.vue'
 import UserManagement from '../views/admin/UserManagement.vue'
 
@@ -36,8 +35,7 @@ const router = createRouter({
       component: ShopDashboard,
       children: [
         { path: '', name: 'shop-goods', component: GoodsManagement }, // 商品管理
-        { path: 'orders', name: 'shop-orders', component: OrderManagement }, // 订单管理
-        { path: 'settings', name: 'shop-settings', component: ShopSettings } // 店铺设置
+        { path: 'orders', name: 'shop-orders', component: OrderManagement } // 订单管理
       ]
     },
     { 

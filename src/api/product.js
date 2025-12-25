@@ -9,24 +9,24 @@ export const getProductList = (params) => {
   })
 }
 
-// 发布商品（商家）- 使用FormData上传文件
-export const addProduct = (formData) => {
+// 发布商品（商家）- 支持 FormData
+export const addProduct = (data) => {
   return request({
     url: '/products/add',
     method: 'post',
-    data: formData,
+    data,
     headers: {
       'Content-Type': 'multipart/form-data'
     }
   })
 }
 
-// 编辑商品（商家）- 使用FormData上传文件
-export const updateProduct = (formData) => {
+// 编辑商品（商家）- 支持 FormData
+export const updateProduct = (data) => {
   return request({
     url: '/products/update',
     method: 'put',
-    data: formData,
+    data,
     headers: {
       'Content-Type': 'multipart/form-data'
     }
